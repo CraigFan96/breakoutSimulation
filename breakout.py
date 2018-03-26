@@ -23,13 +23,15 @@
 #Add mouse controls
 #add half size paddle after hitting back wall
 
-import math,pygame,sys,shutil,getpass
+import math,pygame,sys,shutil,getpass, os
 from pygame.locals import *
 
 pygame.init()
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
 pygame.display.set_caption('Breakout') #set title bar
+PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
+print PATH
 
 #add the font; use PressStart2P, but otherwise default if not available
 try:
@@ -255,7 +257,7 @@ def game(score,paddle,ball,board,wall1): #The game itself
 def get_highscore(score):
     place = 20
     
-    f = open('/Users/'+getpass.getuser()+'/Library/scores.txt','r')
+    f = open(os.path.join(PATH, 'scores.txt'),'r')
     f.seek(0)
     r = f.readlines()
     count = 0
@@ -270,7 +272,7 @@ def get_highscore(score):
         r = shove_row(name,place,r)
 
         f.close()
-        f = open('/Users/'+getpass.getuser()+'/Library/scores.txt','w')
+        f = open(os.path.join(PATH, 'scores.txt'),'w')
         f.writelines(r)
 
     f.close()
@@ -397,21 +399,22 @@ def high_score_board():
     return name
 def print_highscore_board():
     try:
-        f = open('/Users/'+getpass.getuser()+'/Library/scores.txt','r')
+        f = open(os.path.join(PATH, 'scores.txt'),'r')
     except:    
         print 'create new highscores file'
         n = '00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n'
-        shutil.move('scores.txt','/Users/'+getpass.getuser()+'/Library')
-        f = open('/Users/'+getpass.getuser()+'/Library','w')
+        shutil.move('scores.txt', PATH)
+        f = open(os.path.join(PATH, 'scores.txt'),'w')
         f.write(n)
         f.close()
         #shutil.move('scores.txt','/Library')
-        f = open('/Users/'+getpass.getuser()+'/Library/scores.txt','r')
+        f = open(os.path.join(PATH, 'scores.txt'),'r')
     r = f.readlines()
     yPos = 0
     evens = [0,2,4,6,8,10,12,14,16,18,20]
     for score in range(19):
         if score in evens:
+            print write(200,100+yPos,grey,str(r[score].replace('\n','')+" - "+r[score+1].replace('\n','')))
             write(200,100+yPos,grey,str(r[score].replace('\n','')+" - "+r[score+1].replace('\n','')))
             yPos += 25
 
