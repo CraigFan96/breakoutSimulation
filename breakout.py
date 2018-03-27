@@ -2,9 +2,14 @@
 #####################################
 #          ATARI BREAKOUT           #
 #                                   #
-#          Python code by           #
-#           Adam Knuckey            #
+#          Original Python code     #
+#                by                 #
+#            Adam Knuckey           #
 #               2013                #
+#                                   #
+#           Modified By             #
+#           Shahar Dahan            #
+#           Craig Fan               #
 #                                   #
 #    Original Game by Atari, inc    #
 #                                   #
@@ -31,7 +36,6 @@ fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
 pygame.display.set_caption('Breakout') #set title bar
 PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
-print PATH
 
 #add the font; use PressStart2P, but otherwise default if not available
 try:
@@ -59,19 +63,19 @@ colors = [r1,r2,r3,r4,r5,r6]
 #variables------------------------------------
 controls = 'keys' #control method
 mousex,mousey = 0,0 #mouse position
-dx,dy = 18,6 #dimensions of board
-bx,by = 50,150 #board position
+width,height = 18,6 #dimensions of board
+blockX,blockY = 50,150 #board position
 score = 0 #score
-wall1 = pygame.Rect(20,100,30,380) #walls of the game
-wall2 = pygame.Rect(590,100,30,380)
-wall3 = pygame.Rect(20,80,600,30)
+wallLeft = pygame.Rect(20,100,30,380)
+wallRight = pygame.Rect(590,100,30,380)
+wallTop = pygame.Rect(20,80,600,30)
 
 #Creates a board of rectangles----------------
 def new_board():
     board = []
-    for x in range(dx):
+    for x in range(width):
         board.append([])
-        for y in range(dy):
+        for y in range(height):
             board[x].append(1)
     return board
           
@@ -99,16 +103,41 @@ class Ball: #class for ball vars
         self.yPos = (self.speed / tSlope) * self.yPos
         self.adjusted = True
 
+class GameState:
+    '''Class encapsulating current game state'''
+    state = []
+
+    def __init__(self, paddle, ball, bricks):
+        self.paddle = paddle
+        self.ball = ball
+        self.bricks = bricks
+
+    def get_game_state(self):
+        return {
+            "ball.x": self.ball.x,
+            "ball.y": self.ball.y,
+            "ball.xAcc": self.ball.xPos,
+            "ball.yAcc": self.ball.yPos,
+            "paddle.x": self.paddle.x,
+            "paddle.y": self.paddle.y,
+            "bricks": self.bricks
+        }
+
+
 #Functions defined----------------------------
 def print_board(board,colors): #prints the board
-    for x in range(dx):
-        for y in range(dy):
+    for x in range(width):
+        for y in range(height):
             if board[x][y] == 1:
-                pygame.draw.rect(screen,colors[y],(((x*30)+bx),((y*12)+by),30,12))
+                pygame.draw.rect(screen,colors[y],(((x*30)+blockX),((y*12)+blockY),30,12))
           
 def print_paddle(paddle): #prints the paddle
     if paddle.size == 2:
         pygame.draw.rect(screen,red,((paddle.x-20),(paddle.y),40,5))
+
+def check_collide_paddle(paddle, ball):
+    return ball.x > paddle.x-20 and ball.x < paddle.x+20
+
 
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
     ball.adjusted = False
@@ -126,7 +155,7 @@ def write(x,y,color,msg): #prints onto the screen in selected font
     msgRectobj.topleft = (x,y)
     screen.blit(msgSurfaceObj,msgRectobj)
 
-def game(score,paddle,ball,board,wall1): #The game itself
+def game(score,paddle,ball,board,wallLeft,gamestate): #The game itself
     #starting variables
     running = True
     ball.alive = True
@@ -134,22 +163,24 @@ def game(score,paddle,ball,board,wall1): #The game itself
     ball.x = 53
     ball.y = 300
     ball.collisions, ball.speed = 0,5
-    colO = False #check collision with the orange row, for speed purposes
-    colR = False #same but for red row
+    rowOrange = False #check collision with the orange row, for speed purposes
+    rowRed = False #same but for red row
     ball.speed = 5
     ball.xPos = 1
     ball.yPos = 1 
     ball.adjusted = False
+    gameState.ball = ball
           
-    while running == True:
+    while running :
         #Draw all the things------------------------------
         screen.fill(black)
-        pygame.draw.rect(screen,grey,wall1)
-        pygame.draw.rect(screen,grey,wall2)
-        pygame.draw.rect(screen,grey,wall3)
+        pygame.draw.rect(screen,grey,wallLeft)
+        pygame.draw.rect(screen,grey,wallRight)
+        pygame.draw.rect(screen,grey,wallTop)
         pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,6,6))
         print_board(board,colors)
         print_paddle(paddle)
+        # Line to change size / where the score is
         write(20,20,grey,str(score))
         temp = 0
         for life in range(ball.remaining):
@@ -158,14 +189,14 @@ def game(score,paddle,ball,board,wall1): #The game itself
                 temp += 15
 
         #check all the collisions-------------------------
-        if ball.moving == True:
+        if ball.moving:
             if ball.adjusted == False:
                 ball.adjust()
             ball.x += ball.xPos
             ball.y += ball.yPos
-            if ball.y < 455 and ball.y > 445:
-                if ball.x > paddle.x-20 and ball.x < paddle.x+20:
-                    ball.adjusted, ball.xPos, ball.yPos = collide_paddle(paddle,ball)#paddle collide
+            if ball.y > 445 and ball.y < 455:
+                if check_collide_paddle(paddle, ball):
+                    ball.adjusted, ball.xPos, ball.yPos = collide_paddle(paddle,ball)
                     ball.collisions += 1
                     #increase ball speeds at 4 hits on paddle, 12 hits, orange row, red row
                     if ball.collisions == 4:
@@ -173,50 +204,58 @@ def game(score,paddle,ball,board,wall1): #The game itself
                     if ball.collisions == 12:
                         ball.speed += 1
                     #if ball hits the back wall, paddle cuts in half
+                    # This is not implemented.
+
             #check wall collide----------------------------
-            if wall1.collidepoint(ball.x,ball.y) == True or wall2.collidepoint(ball.x,ball.y):
+            if wallLeft.collidepoint(ball.x,ball.y) or wallRight.collidepoint(ball.x,ball.y):
                 ball.xPos = -(ball.xPos)
-            if wall3.collidepoint(ball.x,ball.y) == True:
+            if wallTop.collidepoint(ball.x,ball.y):
                 ball.yPos = -(ball.yPos)
 
             #check collision with bricks-------------------
-            Break = False
-            for x in range(dx):
-                for y in range(dy):
+            collision = False
+            for x in range(width):
+                for y in range(height):
                     if board[x][y] == 1:
-                        block = pygame.Rect(30*x+bx-1,12*y+by-1,32,14)
-                        if block.collidepoint(ball.x,ball.y) == True:
+                        # Calculate each block individually:
+                        block = pygame.Rect(30*x+blockX-1,12*y+blockY-1,32,14)
+                        if block.collidepoint(ball.x,ball.y):
                             board[x][y] = 0
-##                            if y*12+by+12 < ball.y: FIX THIS ITS THE BLOCK BUG
+##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
-##                            elif x*30+bx+30 < 
-                            ball.yPos = -ball.yPos #Cheat
+##                            elif x*30+blockX+30 < 
+                            ball.yPos = -ball.yPos #Cheat <-- what the heck does this mean
+
+                            # calculate score
                             if y == 4 or y == 5:
                                 score += 1
                             elif y == 2 or y == 3:
                                 score += 4
-                                if colO == False:
-                                    colO = True
-                                    ball.speed+= 1
+                                if rowOrange == False:
+                                    rowOrange = True
+                                    ball.speed += 1
                             else:
                                 score += 7
-                                if colR == False:
-                                    colR= True
-                                    ball.speed+= 2
-                            Break = True
-                    if Break == True:
-                        break
-                if Break == True:
+                                if rowRed == False:
+                                    rowRed = True
+                                    ball.speed += 2
+                            collision = True
+                            break
+
+                if collision:
                     break
+            # Ball passes paddle
             if ball.y > 460:
                 ball.alive = False
           
         #check if ball was lost
-        if ball.alive == False:
+        if not ball.alive:
             running = False
             ball.remaining -= 1
           
         #move paddle
+        # Provide global variable to RIGHT WALL and LEFT WALL instead of
+        # numbers?
         if paddle.direction == 'right':
             if paddle.x <= 561:
                 paddle.x += 8
@@ -234,6 +273,7 @@ def game(score,paddle,ball,board,wall1): #The game itself
             elif event.type == MOUSEBUTTONUP:
                 mx,my = event.pos
 
+        # Wait for user input here?
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT:
                     paddle.direction = 'left'
@@ -254,6 +294,7 @@ def game(score,paddle,ball,board,wall1): #The game itself
         pygame.display.update()
         fpsClock.tick(30)
     return score
+
 def get_highscore(score):
     place = 20
     
@@ -261,9 +302,8 @@ def get_highscore(score):
     f.seek(0)
     r = f.readlines()
     count = 0
-    evens = [0,2,4,6,8,10,12,14,16,18]
     for line in r:
-        if count in evens:
+        if count % 2 == 0:
             if score > int(line):
                 place -= 2
         count += 1
@@ -397,6 +437,7 @@ def high_score_board():
     name = str(name[0]+name[1]+name[2])
     
     return name
+
 def print_highscore_board():
     try:
         f = open(os.path.join(PATH, 'scores.txt'),'r')
@@ -414,9 +455,15 @@ def print_highscore_board():
     evens = [0,2,4,6,8,10,12,14,16,18,20]
     for score in range(19):
         if score in evens:
-            print write(200,100+yPos,grey,str(r[score].replace('\n','')+" - "+r[score+1].replace('\n','')))
             write(200,100+yPos,grey,str(r[score].replace('\n','')+" - "+r[score+1].replace('\n','')))
             yPos += 25
+
+def black_screen(x, y):
+    for i in xrange(x):
+        for j in xrange(y):
+            pygame.draw.rect(screen,black,(i*40,j*40,40,40))
+            pygame.display.update()
+            pygame.time.wait(2)
 
 #-----------------------------------------------------
 if __name__ == '__main__':
@@ -428,7 +475,8 @@ if __name__ == '__main__':
         fontObj = pygame.font.Font('freesansbold.ttf',24)
     while True:
         screen.fill(black)
-        if replay == True:
+        # If the player decided to play this map... why is it replay == True?
+        if replay:
             board = new_board()
             score = 0
             try:
@@ -437,15 +485,12 @@ if __name__ == '__main__':
                 fontObj = pygame.font.Font('freesansbold.ttf',36)
             paddle = Paddle()
             ball = Ball()
+            gameState = GameState(paddle, ball, board)
             while ball.remaining > 0:
-                score = game(score,paddle,ball,board,wall1)
+                score = game(score,paddle,ball,board,wallLeft,gameState)
                 if ball.remaining == 0:
-                    for x in range(16):
-                        for y in range(12):
-                            pygame.draw.rect(screen,black,(x*40,y*40,40,40))
-                            pygame.display.update()
-                            pygame.time.wait(10)
-                            boardcheck = 0
+                    black_screen(16, 12)
+                    boardcheck = 0
                     for x in range(len(board)):
                         for y in range(len(board[x])):
                             boardcheck += board[x][y]
@@ -454,14 +499,10 @@ if __name__ == '__main__':
                         ball = Ball()
                         board = new_board()
                         while ball.remaining > 0:
-                            score = game(score,paddle,ball,board,wall1)
+                            score = game(score,paddle,ball,board,wallLeft)
                             if ball.remaining == 0:
-                                for x in range(16):
-                                    for y in range(12):
-                                        pygame.draw.rect(screen,black,(x*40,y*40,40,40))
-                                        pygame.display.update()
-                                        pygame.time.wait(10)
-                            
+                                black_screen(16, 12)
+ 
                     get_highscore(score)
                     replay = False
                     try:
