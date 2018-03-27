@@ -35,7 +35,6 @@ import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
 
 pygame.display.set_caption('Breakout') #set title bar
 
-from highscore import *
 from pygame.locals import *
 from collections import deque
 
@@ -300,12 +299,6 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
         fpsClock.tick(30)
     return score
 
-def black_screen(x, y):
-    for i in xrange(x):
-        for j in xrange(y):
-            pygame.draw.rect(screen,black,(i*40,j*40,40,40))
-            pygame.display.update()
-            pygame.time.wait(2)
 
 #-----------------------------------------------------
 if __name__ == '__main__':
@@ -332,7 +325,7 @@ if __name__ == '__main__':
                 score = game(wallLeft, gameState)
                 gameState.score = score
                 if ball.remaining == 0:
-                    black_screen(16, 12)
+                    breakout_drawing.black_screen(16, 12)
                     boardcheck = 0
                     for x in range(len(board)):
                         for y in range(len(board[x])):
@@ -344,7 +337,7 @@ if __name__ == '__main__':
                         while ball.remaining > 0:
                             score = game(wallLeft,gameState)
                             if ball.remaining == 0:
-                                black_screen(16, 12)
+                                breakout_drawing.black_screen(16, 12)
  
                     get_highscore(score)
                     replay = False
