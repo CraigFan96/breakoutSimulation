@@ -31,7 +31,7 @@ import pygame
 
 pygame.init()
 
-import math,sys,shutil,getpass,os,commons
+import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
 
 pygame.display.set_caption('Breakout') #set title bar
 
@@ -150,16 +150,6 @@ class GameState:
 
 
 #Functions defined----------------------------
-def print_board(board,colors): #prints the board
-    for x in range(width):
-        for y in range(height):
-            if board[x][y] == 1:
-                pygame.draw.rect(screen,colors[y],(((x*30)+blockX),((y*12)+blockY),30,12))
-          
-def print_paddle(paddle): #prints the paddle
-    if paddle.size == 2:
-        pygame.draw.rect(screen,red,((paddle.x-20),(paddle.y),40,5))
-
 def check_collide_paddle(paddle, ball):
     return ball.x > paddle.x-20 and ball.x < paddle.x+20
 
@@ -173,12 +163,6 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
         ball.xPos = 0
         ball.yPos = 1
     return ball.adjusted,float(ball.xPos), float(ball.yPos)
-
-def write(x,y,color,msg): #prints onto the screen in selected font
-    msgSurfaceObj = fontObj.render(msg, False, color)
-    msgRectobj = msgSurfaceObj.get_rect()
-    msgRectobj.topleft = (x,y)
-    screen.blit(msgSurfaceObj,msgRectobj)
 
 def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game itself
     #starting variables
@@ -196,10 +180,10 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
         pygame.draw.rect(screen,grey,wallRight)
         pygame.draw.rect(screen,grey,wallTop)
         pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,6,6))
-        print_board(board,colors)
-        print_paddle(paddle)
+        breakout_drawing.print_board(board,colors)
+        breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is
-        write(20,20,grey,str(score))
+        commons.write(20,20,grey,str(score))
         temp = 0
         for life in range(ball.remaining):
             if life != 0:
@@ -368,10 +352,10 @@ if __name__ == '__main__':
                         fontObj = pygame.font.Font('PressStart2P.ttf',24)
                     except:
                         fontObj = pygame.font.Font('freesansbold.ttf',24)
-        write(200,20,grey,'Highscores')
-        print_highscore_board()
+        commons.write(200,20,grey,'Highscores')
+        highscore.print_highscore_board()
         if loop < 18:
-            write(80,400,grey,'-Press Enter To Play-')
+            commons.write(80,400,grey,'-Press Enter To Play-')
         elif loop == 30:
             loop = 0
         for event in pygame.event.get():

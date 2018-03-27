@@ -1,0 +1,20 @@
+import math,pygame,sys,shutil,getpass, os, commons
+from pygame.locals import *
+from collections import deque
+
+width,height = commons.width, commons.height #dimensions of board
+screen = commons.screen
+blockX,blockY = commons.blockX, commons.blockY #board position
+
+#generic colors-------------------------------
+red, green, blue, white, grey, black = commons.default_colors()
+#Functions defined----------------------------
+def print_board(board,colors): #prints the board
+    for x in range(width):
+        for y in range(height):
+            if board[x][y] == 1:
+                pygame.draw.rect(screen,colors[y],(((x*30)+blockX),((y*12)+blockY),30,12))
+          
+def print_paddle(paddle): #prints the paddle
+    if paddle.size == 2:
+        pygame.draw.rect(screen,red,((paddle.x-20),(paddle.y),40,5))
