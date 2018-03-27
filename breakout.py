@@ -30,6 +30,7 @@
 
 import math,pygame,sys,shutil,getpass, os
 from pygame.locals import *
+from collections import deque
 
 pygame.init()
 fpsClock = pygame.time.Clock()
@@ -105,12 +106,43 @@ class Ball: #class for ball vars
 
 class GameState:
     '''Class encapsulating current game state'''
-    state = []
 
-    def __init__(self, paddle, ball, bricks):
+    def __init__(self, paddle, ball, bricks, score=0):
+        self.state = deque(maxlen=4)
         self.paddle = paddle
         self.ball = ball
-        self.bricks = bricks
+        self.board = board
+        self.score = score
+        self.rowOrange = False
+        self.rowRed = False
+
+    def default_state(self): 
+        self.ball.alive = True
+        self.ball.moving = False
+        self.ball.x = 53
+        self.ball.y = 300
+        self.ball.collisions, ball.speed = 0,5
+        self.rowOrange = False #check collision with the orange row, for speed purposes
+        self.rowRed = False #same but for red row
+        self.ball.speed = 5
+        self.ball.xPos = 1
+        self.ball.yPos = 1 
+        self.ball.adjusted = False
+
+    def custom_state(self, paddle, ball, bricks, score):
+        self.paddle = paddle
+        self.ball = ball
+        self.board = board
+        self.score = score
+        # Check if any of the orange row or red row are missing, use some logic
+        # here
+        self.rowOrange = False
+        self.rowRed = False
+
+
+    def update_state(self):
+        self.state.append(self.get_game_state())
+
 
     def get_game_state(self):
         return {
@@ -120,7 +152,8 @@ class GameState:
             "ball.yAcc": self.ball.yPos,
             "paddle.x": self.paddle.x,
             "paddle.y": self.paddle.y,
-            "bricks": self.bricks
+            "board": self.board,
+            "score": self.score
         }
 
 
@@ -155,21 +188,14 @@ def write(x,y,color,msg): #prints onto the screen in selected font
     msgRectobj.topleft = (x,y)
     screen.blit(msgSurfaceObj,msgRectobj)
 
-def game(score,paddle,ball,board,wallLeft,gamestate): #The game itself
+def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game itself
     #starting variables
+    gameState.custom_state(custom_state) if stateProvided else gameState.default_state()
+    ball = gameState.ball
+    score = gameState.score
+    paddle = gameState.paddle
+    board = gameState.board
     running = True
-    ball.alive = True
-    ball.moving = False
-    ball.x = 53
-    ball.y = 300
-    ball.collisions, ball.speed = 0,5
-    rowOrange = False #check collision with the orange row, for speed purposes
-    rowRed = False #same but for red row
-    ball.speed = 5
-    ball.xPos = 1
-    ball.yPos = 1 
-    ball.adjusted = False
-    gameState.ball = ball
           
     while running :
         #Draw all the things------------------------------
@@ -240,6 +266,9 @@ def game(score,paddle,ball,board,wallLeft,gamestate): #The game itself
                                     rowRed = True
                                     ball.speed += 2
                             collision = True
+                            gameState.update_state()
+                            print gameState
+                            print gameState.state
                             break
 
                 if collision:
@@ -485,9 +514,10 @@ if __name__ == '__main__':
                 fontObj = pygame.font.Font('freesansbold.ttf',36)
             paddle = Paddle()
             ball = Ball()
-            gameState = GameState(paddle, ball, board)
+            gameState = GameState(paddle, ball, board, score)
             while ball.remaining > 0:
-                score = game(score,paddle,ball,board,wallLeft,gameState)
+                score = game(wallLeft, gameState)
+                gameState.score = score
                 if ball.remaining == 0:
                     black_screen(16, 12)
                     boardcheck = 0
@@ -499,7 +529,7 @@ if __name__ == '__main__':
                         ball = Ball()
                         board = new_board()
                         while ball.remaining > 0:
-                            score = game(score,paddle,ball,board,wallLeft)
+                            score = game(wallLeft,gameState)
                             if ball.remaining == 0:
                                 black_screen(16, 12)
  
