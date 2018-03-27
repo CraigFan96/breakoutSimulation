@@ -27,49 +27,41 @@
 
 #Add mouse controls
 #add half size paddle after hitting back wall
+import pygame
 
-import math,pygame,sys,shutil,getpass, os
+pygame.init()
+
+import math,sys,shutil,getpass,os,commons
+
+pygame.display.set_caption('Breakout') #set title bar
+
+from highscore import *
 from pygame.locals import *
 from collections import deque
 
-pygame.init()
-fpsClock = pygame.time.Clock()
-screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
-pygame.display.set_caption('Breakout') #set title bar
-PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
+fpsClock = commons.fpsClock
+# screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
+screen = commons.screen
+PATH = commons.PATH
 
 #add the font; use PressStart2P, but otherwise default if not available
-try:
-    fontObj = pygame.font.Font('PressStart2P.ttf',36)
-except:
-    fontObj = pygame.font.Font('freesansbold.ttf',36)
+fontObj = commons.fontObj
 
 #generic colors-------------------------------
-red = pygame.Color(255,0,0)
-green = pygame.Color(0,255,0)
-blue = pygame.Color(0,0,255)
-white = pygame.Color(255,255,255)
-grey = pygame.Color(142,142,142)
-black = pygame.Color(0,0,0)
+red, green, blue, white, grey, black = commons.default_colors()
 
 #row colors-----------------------------------
-r1 = pygame.Color(200,72,72)
-r2 = pygame.Color(198,108,58)
-r3 = pygame.Color(180,122,48)
-r4 = pygame.Color(162,162,42)
-r5 = pygame.Color(72,160,72)
-r6 = pygame.Color(67,73,202)
-colors = [r1,r2,r3,r4,r5,r6]
+colors = commons.row_colors
 
 #variables------------------------------------
-controls = 'keys' #control method
-mousex,mousey = 0,0 #mouse position
-width,height = 18,6 #dimensions of board
-blockX,blockY = 50,150 #board position
-score = 0 #score
-wallLeft = pygame.Rect(20,100,30,380)
-wallRight = pygame.Rect(590,100,30,380)
-wallTop = pygame.Rect(20,80,600,30)
+controls = commons.controls #control method
+mousex,mousey = commons.mousex, commons.mousey #mouse position
+width,height = commons.width, commons.height #dimensions of board
+blockX,blockY = commons.blockX, commons.blockY #board position
+score = commons.score #score
+wallLeft = commons.wallLeft
+wallRight = commons.wallRight
+wallTop = commons.wallTop
 
 #Creates a board of rectangles----------------
 def new_board():
@@ -323,169 +315,6 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
         pygame.display.update()
         fpsClock.tick(30)
     return score
-
-def get_highscore(score):
-    place = 20
-    
-    f = open(os.path.join(PATH, 'scores.txt'),'r')
-    f.seek(0)
-    r = f.readlines()
-    count = 0
-    for line in r:
-        if count % 2 == 0:
-            if score > int(line):
-                place -= 2
-        count += 1
-    if place < 20:
-        name = high_score_board()
-        r = shove_row(name,place,r)
-
-        f.close()
-        f = open(os.path.join(PATH, 'scores.txt'),'w')
-        f.writelines(r)
-
-    f.close()
-
-def shove_row(name,place,r):
-    for line in range(len(r)):
-        l = 19-line
-        if place <= l-1:
-            r[l] = str(r[l-2])
-            r[l-1] = str(r[l-3])
-        else:
-            break
-
-    r[place] = adjusted_score(score)
-    r[place+1] = name + '\n'
-
-    return r
-    
-def adjusted_score(score):
-    if score < 10:
-        a = '0'+'0'+'0'+'0' +  str(score)+'\n'
-    elif score <100:
-        a = '0'+'0'+'0'+str(score)+'\n'
-    elif score < 1000:
-        a = '0'+'0'+str(score)+'\n'
-    elif score < 10000:
-        a = '0'+str(score)+'\n'
-    else:
-        a = '99999'+'\n'
-    return str(a)
-
-def high_score_board():
-    picked = False
-    name = []
-    loop = 0
-    while picked == False:
-        screen.fill(black)
-        write(60,40,red,'New Highscore!')
-        write(100,100,grey,'Name:')
-        pygame.draw.line(screen,grey,(110,240),(140,240),2)
-        pygame.draw.line(screen,grey,(150,240),(180,240),2)
-        pygame.draw.line(screen,grey,(190,240),(220,240),2)
-        
-        if len(name) == 0:
-            pygame.draw.rect(screen,grey,(110,200,3,36))
-        elif len(name) == 1:
-            pygame.draw.rect(screen,grey,(150,200,3,36))
-            write(110,200,grey,name[0])
-        elif len(name) == 2:
-            pygame.draw.rect(screen,grey,(190,200,3,36))
-            write(110,200,grey,name[0])
-            write(150,200,grey,name[1])
-        elif len(name) == 3:
-            write(110,200,grey,name[0])
-            write(150,200,grey,name[1])
-            write(190,200,grey,name[2])
-
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-            elif event.type == KEYDOWN:
-                if len(name) < 3:
-                    if event.key == K_a:
-                        name.append('A')
-                    if event.key == K_b:
-                        name.append('B')
-                    if event.key == K_c:
-                        name.append('C')
-                    if event.key == K_d:
-                        name.append('D')
-                    if event.key == K_e:
-                        name.append('E')
-                    if event.key == K_f:
-                        name.append('F')
-                    if event.key == K_g:
-                        name.append('G')
-                    if event.key == K_h:
-                        name.append('H')
-                    if event.key == K_i:
-                        name.append('I')
-                    if event.key == K_j:
-                        name.append('J')
-                    if event.key == K_k:
-                        name.append('K')
-                    if event.key == K_l:
-                        name.append('L')
-                    if event.key == K_m:
-                        name.append('M')
-                    if event.key == K_n:
-                        name.append('N')
-                    if event.key == K_o:
-                        name.append('O')
-                    if event.key == K_p:
-                        name.append('P')
-                    if event.key == K_q:
-                        name.append('Q')
-                    if event.key == K_r:
-                        name.append('R')
-                    if event.key == K_s:
-                        name.append('S')
-                    if event.key == K_t:
-                        name.append('T')
-                    if event.key == K_u:
-                        name.append('U')
-                    if event.key == K_v:
-                        name.append('V')
-                    if event.key == K_w:
-                        name.append('W')
-                    if event.key == K_x:
-                        name.append('X')
-                    if event.key == K_y:
-                        name.append('Y')
-                    if event.key == K_z:
-                        name.append('Z')
-                if event.key == K_BACKSPACE:
-                        name.remove(name[len(name)-1])
-                if event.key == K_RETURN:
-                    if len(name) == 3:
-                        picked = True
-        pygame.display.update()
-    name = str(name[0]+name[1]+name[2])
-    
-    return name
-
-def print_highscore_board():
-    try:
-        f = open(os.path.join(PATH, 'scores.txt'),'r')
-    except:    
-        print 'create new highscores file'
-        n = '00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n'
-        shutil.move('scores.txt', PATH)
-        f = open(os.path.join(PATH, 'scores.txt'),'w')
-        f.write(n)
-        f.close()
-        #shutil.move('scores.txt','/Library')
-        f = open(os.path.join(PATH, 'scores.txt'),'r')
-    r = f.readlines()
-    yPos = 0
-    evens = [0,2,4,6,8,10,12,14,16,18,20]
-    for score in range(19):
-        if score in evens:
-            write(200,100+yPos,grey,str(r[score].replace('\n','')+" - "+r[score+1].replace('\n','')))
-            yPos += 25
 
 def black_screen(x, y):
     for i in xrange(x):
