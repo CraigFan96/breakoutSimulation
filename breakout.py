@@ -339,7 +339,7 @@ if __name__ == '__main__':
                             if ball.remaining == 0:
                                 breakout_drawing.black_screen(16, 12)
  
-                    get_highscore(score)
+                    highscore.get_highscore(score)
                     replay = False
                     try:
                         fontObj = pygame.font.Font('PressStart2P.ttf',24)
