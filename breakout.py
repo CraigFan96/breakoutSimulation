@@ -79,15 +79,15 @@ class Paddle: #class for paddle vars
     direction = 'none'
 
 class Ball: #class for ball vars
-    x = 0
-    y = 0
+    x = 53
+    y = 300
     remaining = 3
     xPos = 1 #amount increasing by for x. adjusted for speed
     yPos = 1
     adjusted = False #says wether the xPos and yPos have been adjusted for speed
     speed = 5
     collisions = 0
-    alive = False
+    alive = True
     moving = False
     def adjust(self): #adjusts the x and y being added to the ball to make the hypotenuse the ball speed
         tSlope = math.sqrt(self.xPos**2 + self.yPos**2)
@@ -95,11 +95,24 @@ class Ball: #class for ball vars
         self.yPos = (self.speed / tSlope) * self.yPos
         self.adjusted = True
 
+    def new_life(self):
+        self.x = 53
+        self.y = 300
+        self.remaing = self.remaining - 1
+        self.xPos = 1
+        self.yPos = 1
+        self.adjusted = False
+        self.speed = 5
+        self.collisions = 0
+        self.alive = True
+        self.moving = False
+
 class GameState:
     '''Class encapsulating current game state'''
 
-    def __init__(self, paddle, ball, bricks, score=0):
+    def __init__(self, paddle, ball, board, score=0):
         self.state = deque(maxlen=4)
+        self.moves = deque(maxlen=4)
         self.paddle = paddle
         self.ball = ball
         self.board = board
@@ -107,18 +120,14 @@ class GameState:
         self.rowOrange = False
         self.rowRed = False
 
-    def default_state(self): 
-        self.ball.alive = True
-        self.ball.moving = False
-        self.ball.x = 53
-        self.ball.y = 300
-        self.ball.collisions, ball.speed = 0,5
-        self.rowOrange = False #check collision with the orange row, for speed purposes
-        self.rowRed = False #same but for red row
-        self.ball.speed = 5
-        self.ball.xPos = 1
-        self.ball.yPos = 1 
-        self.ball.adjusted = False
+    @staticmethod
+    def default_state(): 
+        ball = Ball()
+        paddle = Paddle()
+        board = new_board()
+        rowOrange = False
+        rowRed = False
+        return GameState(paddle, ball, board)
 
     def custom_state(self, paddle, ball, bricks, score):
         self.paddle = paddle
@@ -130,10 +139,9 @@ class GameState:
         self.rowOrange = False
         self.rowRed = False
 
-
     def update_state(self):
         self.state.append(self.get_game_state())
-
+        # self.moves.append(move)
 
     def get_game_state(self):
         return {
@@ -141,6 +149,8 @@ class GameState:
             "ball.y": self.ball.y,
             "ball.xAcc": self.ball.xPos,
             "ball.yAcc": self.ball.yPos,
+            "ball.alive": self.ball.alive,
+            "lives": self.ball.remaining,
             "paddle.x": self.paddle.x,
             "paddle.y": self.paddle.y,
             "board": self.board,
@@ -163,16 +173,16 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
         ball.yPos = 1
     return ball.adjusted,float(ball.xPos), float(ball.yPos)
 
-def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game itself
+def game(wallLeft, gameState=GameState.default_state()): #The game itself
     #starting variables
-    gameState.custom_state(custom_state) if stateProvided else gameState.default_state()
     ball = gameState.ball
-    score = gameState.score
     paddle = gameState.paddle
     board = gameState.board
+    rowOrange = gameState.rowOrange
+    rowRed = gameState.rowRed
     running = True
           
-    while running :
+    while running:
         #Draw all the things------------------------------
         screen.fill(black)
         pygame.draw.rect(screen,grey,wallLeft)
@@ -182,7 +192,7 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
         breakout_drawing.print_board(board,colors)
         breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is
-        commons.write(20,20,grey,str(score))
+        commons.write(20,20,grey,str(gameState.score))
         temp = 0
         for life in range(ball.remaining):
             if life != 0:
@@ -229,21 +239,20 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
 
                             # calculate score
                             if y == 4 or y == 5:
-                                score += 1
+                                gameState.score += 1
                             elif y == 2 or y == 3:
-                                score += 4
+                                gameState.score += 4
                                 if rowOrange == False:
                                     rowOrange = True
                                     ball.speed += 1
                             else:
-                                score += 7
+                                gameState.score += 7
                                 if rowRed == False:
                                     rowRed = True
                                     ball.speed += 2
                             collision = True
                             gameState.update_state()
-                            print gameState
-                            print gameState.state
+                            print gameState.score
                             break
 
                 if collision:
@@ -297,33 +306,24 @@ def game(wallLeft, gameState, stateProvided=False, custom_state=None): #The game
         #update display
         pygame.display.update()
         fpsClock.tick(30)
-    return score
-
+    return gameState
 
 #-----------------------------------------------------
-if __name__ == '__main__':
+def run_game(gameState=GameState.default_state()):
     replay = False
     loop = 0
-    try:
-        fontObj = pygame.font.Font('PressStart2P.ttf',24)
-    except:
-        fontObj = pygame.font.Font('freesansbold.ttf',24)
     while True:
         screen.fill(black)
         # If the player decided to play this map... why is it replay == True?
         if replay:
-            board = new_board()
-            score = 0
-            try:
-                fontObj = pygame.font.Font('PressStart2P.ttf',36)
-            except:
-                fontObj = pygame.font.Font('freesansbold.ttf',36)
-            paddle = Paddle()
-            ball = Ball()
-            gameState = GameState(paddle, ball, board, score)
+            board = gameState.board
+            ball = gameState.ball
+            score = gameState.score
+            paddle = gameState.paddle
             while ball.remaining > 0:
-                score = game(wallLeft, gameState)
-                gameState.score = score
+                gameState = game(wallLeft, gameState)
+                score = gameState.score
+                ball.new_life()
                 if ball.remaining == 0:
                     breakout_drawing.black_screen(16, 12)
                     boardcheck = 0
@@ -341,10 +341,6 @@ if __name__ == '__main__':
  
                     highscore.get_highscore(score)
                     replay = False
-                    try:
-                        fontObj = pygame.font.Font('PressStart2P.ttf',24)
-                    except:
-                        fontObj = pygame.font.Font('freesansbold.ttf',24)
         commons.write(200,20,grey,'Highscores')
         highscore.print_highscore_board()
         if loop < 18:
@@ -357,8 +353,11 @@ if __name__ == '__main__':
                     sys.exit()
             elif event.type == KEYDOWN:
                 if event.key == K_RETURN:
+                    gameState = GameState.default_state()
                     replay = True
         loop += 1
         pygame.display.update()
         
 
+if __name__ == '__main__':
+    run_game()
