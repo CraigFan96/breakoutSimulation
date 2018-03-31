@@ -31,7 +31,7 @@ import pygame
 
 pygame.init()
 
-import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
+import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore, script 
 
 pygame.display.set_caption('Breakout') #set title bar
 
@@ -158,6 +158,7 @@ class GameState:
         }
 
 
+
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
     return ball.x > paddle.x-20 and ball.x < paddle.x+20
@@ -253,6 +254,7 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
                             collision = True
                             gameState.update_state()
                             print gameState.score
+
                             break
 
                 if collision:
@@ -357,7 +359,7 @@ def run_game(gameState=GameState.default_state()):
                     replay = True
         loop += 1
         pygame.display.update()
-        
+
 
 if __name__ == '__main__':
     run_game()
