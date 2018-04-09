@@ -31,7 +31,7 @@ import pygame
 
 pygame.init()
 
-import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore, script 
+import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
 
 pygame.display.set_caption('Breakout') #set title bar
 
@@ -81,7 +81,7 @@ class Paddle: #class for paddle vars
 class Ball: #class for ball vars
     x = 53
     y = 300
-    remaining = 3
+    remaining = 1
     xPos = 1 #amount increasing by for x. adjusted for speed
     yPos = 1
     adjusted = False #says wether the xPos and yPos have been adjusted for speed
@@ -174,6 +174,93 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
         ball.yPos = 1
     return ball.adjusted,float(ball.xPos), float(ball.yPos)
 
+def next_state(currState, action):
+    ball = currState.ball
+    board = currState.board
+    paddle = currState.paddle
+    #check all the collisions-------------------------
+    if ball.moving:
+        if ball.adjusted == False:
+            ball.adjust()
+        ball.x += ball.xPos
+        ball.y += ball.yPos
+        if ball.y > 445 and ball.y < 455:
+            if check_collide_paddle(paddle, ball):
+                ball.adjusted, ball.xPos, ball.yPos = collide_paddle(paddle,ball)
+                ball.collisions += 1
+                #increase ball speeds at 4 hits on paddle, 12 hits, orange row, red row
+                if ball.collisions == 4:
+                    ball.speed += 1
+                if ball.collisions == 12:
+                    ball.speed += 1
+                #if ball hits the back wall, paddle cuts in half
+                # This is not implemented.
+
+        #check wall collide----------------------------
+        if wallLeft.collidepoint(ball.x,ball.y) or wallRight.collidepoint(ball.x,ball.y):
+            ball.xPos = -(ball.xPos)
+        if wallTop.collidepoint(ball.x,ball.y):
+            ball.yPos = -(ball.yPos)
+
+        #check collision with bricks-------------------
+        collision = False
+        for x in range(width):
+            for y in range(height):
+                if board[x][y] == 1:
+                    # Calculate each block individually:
+                    block = pygame.Rect(30*x+blockX-1,12*y+blockY-1,32,14)
+                    if block.collidepoint(ball.x,ball.y):
+                        board[x][y] = 0
+##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
+##                                ball.y = -(ball.y)
+##                            elif x*30+blockX+30 < 
+                        ball.yPos = -ball.yPos #Cheat <-- what the heck does this mean
+
+                        # calculate score
+                        if y == 4 or y == 5:
+                            currState.score += 1
+                        elif y == 2 or y == 3:
+                            currState.score += 4
+                            if rowOrange == False:
+                                rowOrange = True
+                                ball.speed += 1
+                        else:
+                            currState.score += 7
+                            if rowRed == False:
+                                rowRed = True
+                                ball.speed += 2
+                        collision = True
+                        currState.update_state()
+                        print currState.score
+
+                        break
+
+            if collision:
+                break
+        # Ball passes paddle
+        if ball.y > 460:
+            ball.alive = False
+      
+    #check if ball was lost
+    print ball.alive
+    if not ball.alive:
+        running = False
+        ball.remaining -= 1
+
+    #move paddle
+    # Provide global variable to RIGHT WALL and LEFT WALL instead of
+    # numbers?
+    if action == 'right':
+        if paddle.x <= 561:
+            paddle.x += 8
+    elif action == 'left':
+        if paddle.x >= 79:
+            paddle.x -= 8
+    elif action == 'none':
+        pass
+
+    return currState
+
 def game(wallLeft, gameState=GameState.default_state()): #The game itself
     #starting variables
     ball = gameState.ball
@@ -199,87 +286,11 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
             if life != 0:
                 pygame.draw.rect(screen,red,(600,400-temp,10,10))
                 temp += 15
-
-        #check all the collisions-------------------------
-        if ball.moving:
-            if ball.adjusted == False:
-                ball.adjust()
-            ball.x += ball.xPos
-            ball.y += ball.yPos
-            if ball.y > 445 and ball.y < 455:
-                if check_collide_paddle(paddle, ball):
-                    ball.adjusted, ball.xPos, ball.yPos = collide_paddle(paddle,ball)
-                    ball.collisions += 1
-                    #increase ball speeds at 4 hits on paddle, 12 hits, orange row, red row
-                    if ball.collisions == 4:
-                        ball.speed += 1
-                    if ball.collisions == 12:
-                        ball.speed += 1
-                    #if ball hits the back wall, paddle cuts in half
-                    # This is not implemented.
-
-            #check wall collide----------------------------
-            if wallLeft.collidepoint(ball.x,ball.y) or wallRight.collidepoint(ball.x,ball.y):
-                ball.xPos = -(ball.xPos)
-            if wallTop.collidepoint(ball.x,ball.y):
-                ball.yPos = -(ball.yPos)
-
-            #check collision with bricks-------------------
-            collision = False
-            for x in range(width):
-                for y in range(height):
-                    if board[x][y] == 1:
-                        # Calculate each block individually:
-                        block = pygame.Rect(30*x+blockX-1,12*y+blockY-1,32,14)
-                        if block.collidepoint(ball.x,ball.y):
-                            board[x][y] = 0
-##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
-##                                ball.y = -(ball.y)
-##                            elif x*30+blockX+30 < 
-                            ball.yPos = -ball.yPos #Cheat <-- what the heck does this mean
-
-                            # calculate score
-                            if y == 4 or y == 5:
-                                gameState.score += 1
-                            elif y == 2 or y == 3:
-                                gameState.score += 4
-                                if rowOrange == False:
-                                    rowOrange = True
-                                    ball.speed += 1
-                            else:
-                                gameState.score += 7
-                                if rowRed == False:
-                                    rowRed = True
-                                    ball.speed += 2
-                            collision = True
-                            gameState.update_state()
-                            print gameState.score
-
-                            break
-
-                if collision:
-                    break
-            # Ball passes paddle
-            if ball.y > 460:
-                ball.alive = False
           
-        #check if ball was lost
-        if not ball.alive:
-            running = False
-            ball.remaining -= 1
-          
-        #move paddle
-        # Provide global variable to RIGHT WALL and LEFT WALL instead of
-        # numbers?
-        if paddle.direction == 'right':
-            if paddle.x <= 561:
-                paddle.x += 8
-        elif paddle.direction == 'left':
-            if paddle.x >= 79:
-                paddle.x -= 8
-
         #get user input
         for event in pygame.event.get():
+            if not gameState.ball.alive:
+                return gameState
             if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
@@ -291,18 +302,24 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         # Wait for user input here?
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT:
-                    paddle.direction = 'left'
+                    gameState = next_state(gameState, 'left')
                 if event.key == K_RIGHT:
-                    paddle.direction = 'right'
+                    gameState = next_state(gameState, 'right')
                 if event.key == K_SPACE:
                     if ball.moving == False:
                         ball.moving = True
+                        gameState = next_state(gameState, 'none')
+                if event.key == K_UP:
+                    gameState = next_state(gameState, 'none')
+
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     if paddle.direction == 'left':
+                        gameState = next_state(gameState, 'none')
                         paddle.direction = 'none'
                 if event.key == K_RIGHT:
                     if paddle.direction == 'right':
+                        gameState = next_state(gameState, 'none')
                         paddle.direction = 'none'
           
         #update display
