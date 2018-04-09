@@ -339,8 +339,8 @@ def run_game(gameState=GameState.default_state()):
             ball = gameState.ball
             score = gameState.score
             paddle = gameState.paddle
-            temp = gameState.get_game_state
-            print board
+            print len(board)
+            print len(board[0])
             while ball.remaining > 0:
                 gameState = game(wallLeft, gameState)
                 score = gameState.score
