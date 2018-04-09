@@ -1,9 +1,9 @@
 import breakout
 
-def create_default_ball:
+def create_default_ball():
     return breakout.Ball()
 
-def create_defaul_paddle:
+def create_defaul_paddle():
     return breakout.Paddle()
 
 def create_default_board:
@@ -32,24 +32,24 @@ def set_state(state):
         gameState.paddle = state.paddle
 """
 
-def move_paddle(x):
-    movedPaddle = breakout.gameState.paddle.x + x
+def move_paddle(gameState, x):
+    movedPaddle = gameState.paddle.x + x
     return movedPaddle
 
-def set_paddle(x):
+def set_paddle(gameState, x):
     #x is an int
-    breakout.gameState.paddle.x = x
-    return gameState.paddle.x
-
-def move_ball(x, y):
-    gameState.ball.x = breakout.gameState.ball.x + x
-    gameState.ball.y = breakout.gameState.ball.y + y
+    gameState.paddle.x = x
     return gameState
 
-def get_bricks():
-    return breakout.gameState.board
+def move_ball(gameState, x, y):
+    gameState.ball.x += x
+    gameState.ball.y += y
+    return gameState
 
-def get_num_bricks():
+def get_bricks(gameState):
+    return gameState.board
+
+def get_num_bricks(gameState):
     currBoard = gameState.board
     total = 0
     for colOfBlocks in currBoard:
@@ -57,12 +57,12 @@ def get_num_bricks():
             total += block
     return total
 
-def set_bricks(newBlocks):
+def set_bricks(gameState, newBlocks):
     #6 rows, 18 columns
     gameState.board = newBlocks
     return gameState.board
 
-def set_brick(rowVal, colVal, on):
+def set_brick(gameState, rowVal, colVal, on):
     #b is an int, on is a boolean(could be an int)
     if on == 0:
         gameState.board[rowVal][colVal] = 0
