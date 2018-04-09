@@ -31,11 +31,7 @@ import pygame
 
 pygame.init()
 
-<<<<<<< Updated upstream
 import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
-=======
-import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore, script
->>>>>>> Stashed changes
 
 pygame.display.set_caption('Breakout') #set title bar
 
