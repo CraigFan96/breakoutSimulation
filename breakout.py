@@ -31,7 +31,11 @@ import pygame
 
 pygame.init()
 
+<<<<<<< Updated upstream
 import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
+=======
+import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore, script
+>>>>>>> Stashed changes
 
 pygame.display.set_caption('Breakout') #set title bar
 
@@ -339,6 +343,8 @@ def run_game(gameState=GameState.default_state()):
             ball = gameState.ball
             score = gameState.score
             paddle = gameState.paddle
+            temp = gameState.get_game_state
+            print board
             while ball.remaining > 0:
                 gameState = game(wallLeft, gameState)
                 score = gameState.score
