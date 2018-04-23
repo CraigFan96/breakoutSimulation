@@ -29,6 +29,11 @@
 #add half size paddle after hitting back wall
 import pygame
 
+import json
+
+from skimage import io
+from PIL import Image as NewImage
+
 pygame.init()
 
 import math,sys,shutil,getpass,os,commons, breakout_drawing, highscore
@@ -231,7 +236,7 @@ def next_state(currState, action):
                                 ball.speed += 2
                         collision = True
                         currState.update_state()
-                        print currState.score
+                        #print currState.score
 
                         break
 
@@ -242,7 +247,7 @@ def next_state(currState, action):
             ball.alive = False
       
     #check if ball was lost
-    print ball.alive
+    #print ball.alive
     if not ball.alive:
         running = False
         ball.remaining -= 1
@@ -269,8 +274,10 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
     rowOrange = gameState.rowOrange
     rowRed = gameState.rowRed
     running = True
-          
+    frame = 0
+    file = open('./temp.txt', 'w')
     while running:
+        file.write('Frame ' + str(frame) + ': ' + json.dumps(gameState.get_game_state()) + '\n')
         #Draw all the things------------------------------
         screen.fill(black)
         pygame.draw.rect(screen,grey,wallLeft)
@@ -294,10 +301,10 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
             if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
-            elif event.type == MOUSEMOTION:
-                mx,my = event.pos
-            elif event.type == MOUSEBUTTONUP:
-                mx,my = event.pos
+            #elif event.type == MOUSEMOTION:
+            #    mx,my = event.pos
+            #elif event.type == MOUSEBUTTONUP:
+            #    mx,my = event.pos
 
         # Wait for user input here?
             elif event.type == KEYDOWN:
@@ -321,10 +328,13 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
                     if paddle.direction == 'right':
                         gameState = next_state(gameState, 'none')
                         paddle.direction = 'none'
-          
+            #print(event)
         #update display
         pygame.display.update()
         fpsClock.tick(30)
+        #temp = pygame.display.set_mode([600, 600])
+        #pygame.image.save(temp, 'temp.png')
+        frame += 1
     return gameState
 
 #-----------------------------------------------------
@@ -339,8 +349,6 @@ def run_game(gameState=GameState.default_state()):
             ball = gameState.ball
             score = gameState.score
             paddle = gameState.paddle
-            print len(board)
-            print len(board[0])
             while ball.remaining > 0:
                 gameState = game(wallLeft, gameState)
                 score = gameState.score
