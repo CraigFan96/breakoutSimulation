@@ -85,6 +85,7 @@ class Paddle: #class for paddle vars
 
 class Ball: #class for ball vars
     x = 53
+    #x = 153
     y = 300
     remaining = 1
     xPos = 1 #amount increasing by for x. adjusted for speed
@@ -162,8 +163,6 @@ class GameState:
             "score": self.score
         }
 
-
-
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
     return ball.x > paddle.x-20 and ball.x < paddle.x+20
@@ -179,7 +178,7 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
         ball.yPos = 1
     return ball.adjusted,float(ball.xPos), float(ball.yPos)
 
-def next_state(currState, action):
+def next_state(currState, action, frame, file):
     ball = currState.ball
     board = currState.board
     paddle = currState.paddle
@@ -264,6 +263,12 @@ def next_state(currState, action):
     elif action == 'none':
         pass
 
+    #print currState.get_game_state()
+
+    #window = pygame.display.get_surface()
+    #pygame.image.save(window, './gameImages/' + str(frame) + '.png')
+    #file.write('Frame ' + str(frame) + ': ' + json.dumps(currState.get_game_state()) + '\n')
+
     return currState
 
 def game(wallLeft, gameState=GameState.default_state()): #The game itself
@@ -277,6 +282,9 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
     frame = 0
     file = open('./temp.txt', 'w')
     while running:
+
+        window = pygame.display.get_surface()
+        pygame.image.save(window, './gameImages/' + str(frame) + '.png')
         file.write('Frame ' + str(frame) + ': ' + json.dumps(gameState.get_game_state()) + '\n')
         #Draw all the things------------------------------
         screen.fill(black)
@@ -289,6 +297,8 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         # Line to change size / where the score is
         commons.write(20,20,grey,str(gameState.score))
         temp = 0
+
+
         for life in range(ball.remaining):
             if life != 0:
                 pygame.draw.rect(screen,red,(600,400-temp,10,10))
@@ -296,6 +306,7 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
           
         #get user input
         for event in pygame.event.get():
+
             if not gameState.ball.alive:
                 return gameState
             if event.type == QUIT:
@@ -309,24 +320,24 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         # Wait for user input here?
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT:
-                    gameState = next_state(gameState, 'left')
+                    gameState = next_state(gameState, 'left', frame, file)
                 if event.key == K_RIGHT:
-                    gameState = next_state(gameState, 'right')
+                    gameState = next_state(gameState, 'right', frame, file)
                 if event.key == K_SPACE:
                     if ball.moving == False:
                         ball.moving = True
-                        gameState = next_state(gameState, 'none')
+                        gameState = next_state(gameState, 'none', frame, file)
                 if event.key == K_UP:
-                    gameState = next_state(gameState, 'none')
+                    gameState = next_state(gameState, 'none', frame, file)
 
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     if paddle.direction == 'left':
-                        gameState = next_state(gameState, 'none')
+                        gameState = next_state(gameState, 'none', frame, file)
                         paddle.direction = 'none'
                 if event.key == K_RIGHT:
                     if paddle.direction == 'right':
-                        gameState = next_state(gameState, 'none')
+                        gameState = next_state(gameState, 'none', frame, file)
                         paddle.direction = 'none'
             #print(event)
         #update display
