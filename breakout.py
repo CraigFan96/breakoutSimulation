@@ -30,6 +30,7 @@
 import pygame
 
 import json
+import cv2
 
 from skimage import io
 from PIL import Image as NewImage
@@ -345,6 +346,11 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         fpsClock.tick(30)
         #temp = pygame.display.set_mode([600, 600])
         #pygame.image.save(temp, 'temp.png')
+        if frame == 0:
+            differences = open('./differences.txt', 'w')
+            imgData = pygame.surfarray.array3d(window)
+            differences.write(imgData)
+
         frame += 1
     return gameState
 
