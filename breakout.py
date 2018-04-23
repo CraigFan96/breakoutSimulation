@@ -67,6 +67,9 @@ wallLeft = commons.wallLeft
 wallRight = commons.wallRight
 wallTop = commons.wallTop
 
+
+file = open('./temp.txt', 'w')
+
 #Creates a board of rectangles----------------
 def new_board():
     board = []
@@ -116,7 +119,7 @@ class Ball: #class for ball vars
 class GameState:
     '''Class encapsulating current game state'''
 
-    def __init__(self, paddle, ball, board, score=0):
+    def __init__(self, paddle, ball, board, score=0, frame=0):
         self.state = deque(maxlen=4)
         self.moves = deque(maxlen=4)
         self.paddle = paddle
@@ -125,6 +128,7 @@ class GameState:
         self.score = score
         self.rowOrange = False
         self.rowRed = False
+        self.frame = frame
 
     @staticmethod
     def default_state(): 
@@ -178,7 +182,11 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
         ball.yPos = 1
     return ball.adjusted,float(ball.xPos), float(ball.yPos)
 
-def next_state(currState, action, frame, file):
+def next_state(currState, action):
+    frame = currState.frame
+    window = pygame.display.get_surface()
+    file.write('Frame ' + str(frame) + ': ' + json.dumps(currState.get_game_state()) + '\n')
+    pygame.image.save(window, './gameImages/' + str(frame) + '.png')
     ball = currState.ball
     board = currState.board
     paddle = currState.paddle
@@ -269,6 +277,7 @@ def next_state(currState, action, frame, file):
     #pygame.image.save(window, './gameImages/' + str(frame) + '.png')
     #file.write('Frame ' + str(frame) + ': ' + json.dumps(currState.get_game_state()) + '\n')
 
+    currState.frame += 1
     return currState
 
 def game(wallLeft, gameState=GameState.default_state()): #The game itself
@@ -279,13 +288,8 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
     rowOrange = gameState.rowOrange
     rowRed = gameState.rowRed
     running = True
-    frame = 0
-    file = open('./temp.txt', 'w')
     while running:
 
-        window = pygame.display.get_surface()
-        pygame.image.save(window, './gameImages/' + str(frame) + '.png')
-        file.write('Frame ' + str(frame) + ': ' + json.dumps(gameState.get_game_state()) + '\n')
         #Draw all the things------------------------------
         screen.fill(black)
         pygame.draw.rect(screen,grey,wallLeft)
@@ -320,24 +324,24 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         # Wait for user input here?
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT:
-                    gameState = next_state(gameState, 'left', frame, file)
+                    gameState = next_state(gameState, 'left')
                 if event.key == K_RIGHT:
-                    gameState = next_state(gameState, 'right', frame, file)
+                    gameState = next_state(gameState, 'right')
                 if event.key == K_SPACE:
                     if ball.moving == False:
                         ball.moving = True
-                        gameState = next_state(gameState, 'none', frame, file)
+                        gameState = next_state(gameState, 'none')
                 if event.key == K_UP:
-                    gameState = next_state(gameState, 'none', frame, file)
+                    gameState = next_state(gameState, 'none')
 
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     if paddle.direction == 'left':
-                        gameState = next_state(gameState, 'none', frame, file)
+                        gameState = next_state(gameState, 'none')
                         paddle.direction = 'none'
                 if event.key == K_RIGHT:
                     if paddle.direction == 'right':
-                        gameState = next_state(gameState, 'none', frame, file)
+                        gameState = next_state(gameState, 'none')
                         paddle.direction = 'none'
             #print(event)
         #update display
@@ -345,7 +349,6 @@ def game(wallLeft, gameState=GameState.default_state()): #The game itself
         fpsClock.tick(30)
         #temp = pygame.display.set_mode([600, 600])
         #pygame.image.save(temp, 'temp.png')
-        frame += 1
     return gameState
 
 #-----------------------------------------------------
