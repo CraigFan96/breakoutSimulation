@@ -6,9 +6,27 @@ def create_default_ball():
 def create_defaul_paddle():
     return breakout.Paddle()
 
-def create_default_board:
+def create_default_board():
     return breakout.new_board()
 
+def create_default_state():
+    return breakout.GameState.default_state()
+
+def create_custom_state(state_dict):
+    return breakout.GameState.state_from_dict(state_dict)
+
+def play_game(state, actor):
+    while not state.ball.alive:
+        action = actor.act()
+        state = next_state(ball, action)
+
+def game(state=None):
+    if state is None:
+        breakout.game()
+    else:
+        breakout.game(state)
+
+"""
 def get_state():
     currState = {}
     currState[xPosition] = breakout.gameState.ball.x
@@ -21,7 +39,7 @@ def get_state():
     currState[yPaddlePosition] = breakout.gameState.paddle.y
     currState[bricks] = breakout.gameState.board
     return currState
-"""
+
 def is_valid_state(state):
 def set_state(state):
         gameState.board = state.board

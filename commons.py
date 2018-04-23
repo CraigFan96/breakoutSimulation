@@ -1,6 +1,5 @@
 import math,pygame,sys,shutil,getpass, os
 from pygame.locals import *
-from collections import deque
 
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix

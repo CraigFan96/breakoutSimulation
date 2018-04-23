@@ -92,25 +92,26 @@ class Ball: #class for ball vars
     #x = 153
     y = 300
     remaining = 1
-    xPos = 1 #amount increasing by for x. adjusted for speed
-    yPos = 1
-    adjusted = False #says wether the xPos and yPos have been adjusted for speed
+    xAcc = 1 #amount increasing by for x. adjusted for speed
+    yAcc = 1
+    adjusted = False #says wether the xAcc and yAcc have been adjusted for speed
     speed = 5
     collisions = 0
+    angle =  math.atan2(xAcc,yAcc)/math.pi*180
     alive = True
     moving = False
     def adjust(self): #adjusts the x and y being added to the ball to make the hypotenuse the ball speed
-        tSlope = math.sqrt(self.xPos**2 + self.yPos**2)
-        self.xPos = (self.speed / tSlope) * self.xPos
-        self.yPos = (self.speed / tSlope) * self.yPos
+        tSlope = math.sqrt(self.xAcc**2 + self.yAcc**2)
+        self.xAcc = (self.speed / tSlope) * self.xAcc
+        self.yAcc = (self.speed / tSlope) * self.yAcc
         self.adjusted = True
 
     def new_life(self):
         self.x = 53
         self.y = 300
         self.remaing = self.remaining - 1
-        self.xPos = 1
-        self.yPos = 1
+        self.xAcc = 1
+        self.yAcc = 1
         self.adjusted = False
         self.speed = 5
         self.collisions = 0
@@ -140,6 +141,17 @@ class GameState:
         rowRed = False
         return GameState(paddle, ball, board)
 
+    @staticmethod
+    def state_from_dict(dictionary):
+        toReturn = GameState.default_state()
+        for k, v in dictionary.items():
+            if '.' in k:
+                k_parent, k_sub = k.split('.')
+                setattr(getattr(toReturn, k_parent), k_sub, v)
+            else:
+                setattr(toReturn, k, v)
+        return toReturn
+
     def custom_state(self, paddle, ball, bricks, score):
         self.paddle = paddle
         self.ball = ball
@@ -156,12 +168,15 @@ class GameState:
 
     def get_game_state(self):
         return {
+            "frame": self.frame,
             "ball.x": self.ball.x,
             "ball.y": self.ball.y,
-            "ball.xAcc": self.ball.xPos,
-            "ball.yAcc": self.ball.yPos,
+            "ball.xAcc": self.ball.xAcc,
+            "ball.yAcc": self.ball.yAcc,
             "ball.alive": self.ball.alive,
-            "lives": self.ball.remaining,
+            "ball.speed": self.ball.speed,
+            "ball.angle": self.ball.angle,
+            "ball.remaining": self.ball.remaining,
             "paddle.x": self.paddle.x,
             "paddle.y": self.paddle.y,
             "board": self.board,
@@ -176,30 +191,32 @@ def check_collide_paddle(paddle, ball):
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
     ball.adjusted = False
     if ball.x - paddle.x != 0:
-        ball.xPos = (ball.x-paddle.x) / 8
-        ball.yPos = -1
+        ball.xAcc = (ball.x-paddle.x) / 8
+        ball.yAcc = -1
     else:
-        ball.xPos = 0
-        ball.yPos = 1
-    return ball.adjusted,float(ball.xPos), float(ball.yPos)
+        ball.xAcc = 0
+        ball.yAcc = 1
+    return ball.adjusted,float(ball.xAcc), float(ball.yAcc), math.atan2(ball.xAcc,ball.yAcc)/math.pi*180
 
 def next_state(currState, action):
     frame = currState.frame
     window = pygame.display.get_surface()
-    file.write('Frame ' + str(frame) + ': ' + json.dumps(currState.get_game_state()) + '\n')
+    file.write(str(currState.get_game_state()) + '\n')
     pygame.image.save(window, './gameImages/' + str(frame) + '.png')
     ball = currState.ball
     board = currState.board
     paddle = currState.paddle
+    rowOrange = currState.rowOrange
+    rowRed = currState.rowRed
     #check all the collisions-------------------------
     if ball.moving:
         if ball.adjusted == False:
             ball.adjust()
-        ball.x += ball.xPos
-        ball.y += ball.yPos
+        ball.x += ball.xAcc
+        ball.y += ball.yAcc
         if ball.y > 445 and ball.y < 455:
             if check_collide_paddle(paddle, ball):
-                ball.adjusted, ball.xPos, ball.yPos = collide_paddle(paddle,ball)
+                ball.adjusted, ball.xAcc, ball.yAcc, ball.angle = collide_paddle(paddle,ball)
                 ball.collisions += 1
                 #increase ball speeds at 4 hits on paddle, 12 hits, orange row, red row
                 if ball.collisions == 4:
@@ -211,9 +228,9 @@ def next_state(currState, action):
 
         #check wall collide----------------------------
         if wallLeft.collidepoint(ball.x,ball.y) or wallRight.collidepoint(ball.x,ball.y):
-            ball.xPos = -(ball.xPos)
+            ball.xAcc = -(ball.xAcc)
         if wallTop.collidepoint(ball.x,ball.y):
-            ball.yPos = -(ball.yPos)
+            ball.yAcc = -(ball.yAcc)
 
         #check collision with bricks-------------------
         collision = False
@@ -227,7 +244,7 @@ def next_state(currState, action):
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
 ##                            elif x*30+blockX+30 < 
-                        ball.yPos = -ball.yPos #Cheat <-- what the heck does this mean
+                        ball.yAcc = -ball.yAcc #Cheat <-- what the heck does this mean
 
                         # calculate score
                         if y == 4 or y == 5:
@@ -235,12 +252,12 @@ def next_state(currState, action):
                         elif y == 2 or y == 3:
                             currState.score += 4
                             if rowOrange == False:
-                                rowOrange = True
+                                currState.rowOrange = True
                                 ball.speed += 1
                         else:
                             currState.score += 7
                             if rowRed == False:
-                                rowRed = True
+                                currState.rowRed = True
                                 ball.speed += 2
                         collision = True
                         currState.update_state()
@@ -281,7 +298,7 @@ def next_state(currState, action):
     currState.frame += 1
     return currState
 
-def game(wallLeft, gameState=GameState.default_state()): #The game itself
+def game(gameState=GameState.default_state()): #The game itself
     #starting variables
     ball = gameState.ball
     paddle = gameState.paddle
