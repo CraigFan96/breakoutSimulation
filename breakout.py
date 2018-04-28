@@ -389,7 +389,8 @@ def run_game(gameState=GameState.default_state()):
             score = gameState.score
             paddle = gameState.paddle
             while ball.remaining > 0:
-                gameState = game(wallLeft, gameState)
+                #gameState = game(wallLeft, gameState)
+                gameState = game(gameState)
                 score = gameState.score
                 ball.new_life()
                 if ball.remaining == 0:
