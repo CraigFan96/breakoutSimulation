@@ -82,15 +82,15 @@ def new_board():
           
 #Classes defined------------------------------ 
 class Paddle: #class for paddle vars
-    x = 320
-    y = 450
+    x = 90
+    y = 395
     size = 2 #2 is normal size, 1 is half-size
     direction = 'none'
 
 class Ball: #class for ball vars
-    x = 53
+    x = 30
     #x = 153
-    y = 300
+    y = 180
     remaining = 1
     xAcc = 1 #amount increasing by for x. adjusted for speed
     yAcc = 1
@@ -107,8 +107,8 @@ class Ball: #class for ball vars
         self.adjusted = True
 
     def new_life(self):
-        self.x = 53
-        self.y = 300
+        self.x = 30
+        self.y = 180
         self.remaing = self.remaining - 1
         self.xAcc = 1
         self.yAcc = 1
@@ -187,7 +187,7 @@ class GameState:
 
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
-    return ball.x > paddle.x-20 and ball.x < paddle.x+20
+    return ball.x > paddle.x - 22 and ball.x < paddle.x + 22
 
 
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
@@ -222,7 +222,8 @@ def next_state(currState, action):
             ball.adjust()
         ball.x += ball.xAcc
         ball.y += ball.yAcc
-        if ball.y > 445 and ball.y < 455:
+        print ball.y, paddle.y
+        if ball.y > 263 and ball.y < 273:
             if check_collide_paddle(paddle, ball):
                 ball.adjusted, ball.xAcc, ball.yAcc, ball.angle = collide_paddle(paddle,ball)
                 ball.collisions += 1
@@ -246,7 +247,7 @@ def next_state(currState, action):
             for y in range(height):
                 if board[x][y] == 1:
                     # Calculate each block individually:
-                    block = pygame.Rect(30*x+blockX-1,12*y+blockY-1,32,14)
+                    block = pygame.Rect(6*x+blockX-1,5*y+blockY-1,6,5)
                     if block.collidepoint(ball.x,ball.y):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
@@ -289,10 +290,10 @@ def next_state(currState, action):
     # Provide global variable to RIGHT WALL and LEFT WALL instead of
     # numbers?
     if action == 'right':
-        if paddle.x <= 561:
+        if paddle.x <= 142:
             paddle.x += 8
     elif action == 'left':
-        if paddle.x >= 79:
+        if paddle.x >= 25:
             paddle.x -= 8
     elif action == 'none':
         pass
@@ -321,11 +322,11 @@ def game(gameState=GameState.default_state()): #The game itself
         pygame.draw.rect(screen,grey,wallLeft)
         pygame.draw.rect(screen,grey,wallRight)
         pygame.draw.rect(screen,grey,wallTop)
-        pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,6,6))
+        pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,5,5))#Change ball size
         breakout_drawing.print_board(board,colors)
         breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is
-        commons.write(20,20,grey,str(gameState.score))
+        commons.write(40,15,grey,str(gameState.score))
         temp = 0
 
 
@@ -336,7 +337,11 @@ def game(gameState=GameState.default_state()): #The game itself
           
         #get user input
         for event in pygame.event.get():
-
+            #print check_collide_paddle(paddle, ball)
+            #print 'ball: ' 
+            #print ball.x
+            #print 'paddle: '
+            #print paddle.x
             if not gameState.ball.alive:
                 return gameState
             if event.type == QUIT:
