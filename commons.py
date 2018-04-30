@@ -2,9 +2,9 @@ import math,pygame,sys,shutil,getpass, os
 from pygame.locals import *
 
 fpsClock = pygame.time.Clock()
-screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
+#screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
 #screen = pygame.display.set_mode((250,300))
-#screen = pygame.display.set_mode((160,250))
+screen = pygame.display.set_mode((160,250))
 pygame.display.set_caption('Breakout') #set title bar
 PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
 

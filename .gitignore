@@ -1,7 +1,9 @@
 *.pyc
+*.swp
 Users/
 gameImages/
 temp.png
 temp.txt
 differences.txt
 model-atari-prior-duel-breakout-1/*
+

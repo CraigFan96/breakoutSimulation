@@ -45,7 +45,6 @@ from pygame.locals import *
 from collections import deque
 
 fpsClock = commons.fpsClock
-# screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
 screen = commons.screen
 PATH = commons.PATH
 
@@ -83,7 +82,7 @@ def new_board():
 #Classes defined------------------------------ 
 class Paddle: #class for paddle vars
     x = 90
-    y = 395
+    y = 230
     size = 2 #2 is normal size, 1 is half-size
     direction = 'none'
 
@@ -223,7 +222,7 @@ def next_state(currState, action):
         ball.x += ball.xAcc
         ball.y += ball.yAcc
         print ball.y, paddle.y
-        if ball.y > 263 and ball.y < 273:
+        if ball.y > paddle.y-2 and ball.y < paddle.y+2:
             if check_collide_paddle(paddle, ball):
                 ball.adjusted, ball.xAcc, ball.yAcc, ball.angle = collide_paddle(paddle,ball)
                 ball.collisions += 1
@@ -322,7 +321,7 @@ def game(gameState=GameState.default_state()): #The game itself
         pygame.draw.rect(screen,grey,wallLeft)
         pygame.draw.rect(screen,grey,wallRight)
         pygame.draw.rect(screen,grey,wallTop)
-        pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,5,5))#Change ball size
+        pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,3,3))#Change ball size
         breakout_drawing.print_board(board,colors)
         breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is

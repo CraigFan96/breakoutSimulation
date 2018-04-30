@@ -17,7 +17,7 @@ def print_board(board,colors): #prints the board
           
 def print_paddle(paddle): #prints the paddle
     if paddle.size == 2:
-        pygame.draw.rect(screen,red,((paddle.x - 22),(paddle.y - 130),30,5))
+        pygame.draw.rect(screen,red,((paddle.x),(paddle.y),30,5))
         
 def black_screen(x, y):
     for i in xrange(x):
