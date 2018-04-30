@@ -87,7 +87,7 @@ class Paddle: #class for paddle vars
     direction = 'none'
 
 class Ball: #class for ball vars
-    x = 30
+    x = 25
     #x = 153
     y = 180
     remaining = 1
@@ -186,7 +186,7 @@ class GameState:
 
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
-    return ball.x > paddle.x - 22 and ball.x < paddle.x + 22
+    return ball.x > paddle.x and ball.x < paddle.x + 30
 
 
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
@@ -221,7 +221,8 @@ def next_state(currState, action):
             ball.adjust()
         ball.x += ball.xAcc
         ball.y += ball.yAcc
-        print ball.y, paddle.y
+        print ball.x, paddle.x, "BALL, PADDLE"
+        print wallRight.x, ball.x
         if ball.y > paddle.y-2 and ball.y < paddle.y+2:
             if check_collide_paddle(paddle, ball):
                 ball.adjusted, ball.xAcc, ball.yAcc, ball.angle = collide_paddle(paddle,ball)
@@ -321,7 +322,7 @@ def game(gameState=GameState.default_state()): #The game itself
         pygame.draw.rect(screen,grey,wallLeft)
         pygame.draw.rect(screen,grey,wallRight)
         pygame.draw.rect(screen,grey,wallTop)
-        pygame.draw.rect(screen,red,(ball.x-3,ball.y-3,3,3))#Change ball size
+        pygame.draw.rect(screen,red,(ball.x,ball.y,3,3))#Change ball size
         breakout_drawing.print_board(board,colors)
         breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is

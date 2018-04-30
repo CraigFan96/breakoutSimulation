@@ -46,7 +46,7 @@ score = 0 #score
 #wallRight = pygame.Rect(590,100,30,380)
 #wallTop = pygame.Rect(20,80,600,30)
 wallLeft = pygame.Rect(0,55,25,210)
-wallRight = pygame.Rect(137,55,30,210)
+wallRight = pygame.Rect(135,55,30,210)
 wallTop = pygame.Rect(20,55,145,30)
 
 def write(x,y,color,msg):
