@@ -131,6 +131,7 @@ class GameState:
         self.rowOrange = False
         self.rowRed = False
         self.frame = frame
+        self.game_num = 0
 
     @staticmethod
     def default_state(): 
@@ -168,6 +169,7 @@ class GameState:
 
     def get_game_state(self):
         return {
+            "game_num" : self.game_num,
             "frame": self.frame,
             "ball.x": self.ball.x,
             "ball.y": self.ball.y,
@@ -199,10 +201,16 @@ def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after
     return ball.adjusted,float(ball.xAcc), float(ball.yAcc), math.atan2(ball.xAcc,ball.yAcc)/math.pi*180
 
 def next_state(currState, action):
+    game_num = currState.game_num
     frame = currState.frame
     window = pygame.display.get_surface()
     file.write(str(currState.get_game_state()) + '\n')
-    pygame.image.save(window, './gameImages/' + str(frame) + '.png')
+
+    directory = './gameImages/' + str(game_num).zfill(4) + '/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    pygame.image.save(window, directory + str(frame).zfill(5) + '.png')
+
     ball = currState.ball
     board = currState.board
     paddle = currState.paddle
