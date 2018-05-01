@@ -10,9 +10,9 @@ PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
 
 #add the font; use PressStart2P, but otherwise default if not available
 try:
-    fontObj = pygame.font.Font('PressStart2P.ttf',10)
+    fontObj = pygame.font.Font('PressStart2P.ttf',12)
 except:
-    fontObj = pygame.font.Font('freesansbold.ttf',10)
+    fontObj = pygame.font.Font('freesansbold.ttf',12)
 
 #tempFont = pygame.font.Font('PressStart2P.ttf', 12)
 

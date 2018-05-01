@@ -236,7 +236,7 @@ def next_state(currState, action):
                 # This is not implemented.
 
         #check wall collide----------------------------
-        if wallLeft.collidepoint(ball.x - 3,ball.y) or wallRight.collidepoint(ball.x + 5,ball.y):
+        if wallLeft.collidepoint(ball.x - 3,ball.y) or wallRight.collidepoint(ball.x + 3,ball.y):
             ball.xAcc = -(ball.xAcc)
         if wallTop.collidepoint(ball.x,ball.y):
             ball.yAcc = -(ball.yAcc)
@@ -248,7 +248,7 @@ def next_state(currState, action):
                 if board[x][y] == 1:
                     # Calculate each block individually:
                     block = pygame.Rect(6*x+blockX,5*y+blockY,6,5)
-                    if block.collidepoint(ball.x -1,ball.y -1):
+                    if block.collidepoint(ball.x -10,ball.y - 10):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
