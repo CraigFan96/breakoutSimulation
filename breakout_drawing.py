@@ -13,11 +13,12 @@ def print_board(board,colors): #prints the board
     for x in range(width):
         for y in range(height):
             if board[x][y] == 1:
-                pygame.draw.rect(screen,colors[y],(((x*6)+blockX),((y*5)+blockY),6,5))
+                pygame.draw.rect(screen,colors[y],(((x*8)+blockX),((y*6)+blockY),8,6))
           
 def print_paddle(paddle): #prints the paddle
     if paddle.size == 2:
-        pygame.draw.rect(screen,red,((paddle.x),(paddle.y),30,5))
+        #pygame.draw.rect(screen,red,((paddle.x),(paddle.y),30,5))
+        pygame.draw.rect(screen,red,((paddle.x),(paddle.y),16,4))
         
 def black_screen(x, y):
     for i in xrange(x):

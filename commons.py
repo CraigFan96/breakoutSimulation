@@ -4,15 +4,15 @@ from pygame.locals import *
 fpsClock = pygame.time.Clock()
 #screen = pygame.display.set_mode((640,480)) #create screen - 640 pix by 480 pix
 #screen = pygame.display.set_mode((250,300))
-screen = pygame.display.set_mode((160,250))
+screen = pygame.display.set_mode((160,210))
 pygame.display.set_caption('Breakout') #set title bar
 PATH = os.path.join(sys.path[0], 'Users' , getpass.getuser(), 'Library')
 
 #add the font; use PressStart2P, but otherwise default if not available
 try:
-    fontObj = pygame.font.Font('PressStart2P.ttf',36)
+    fontObj = pygame.font.Font('PressStart2P.ttf',10)
 except:
-    fontObj = pygame.font.Font('freesansbold.ttf',36)
+    fontObj = pygame.font.Font('freesansbold.ttf',10)
 
 #tempFont = pygame.font.Font('PressStart2P.ttf', 12)
 
@@ -40,14 +40,17 @@ row_colors = [r1,r2,r3,r4,r5,r6]
 controls = 'keys' #control method
 mousex,mousey = 0,0 #mouse position
 width,height = 18,6 #dimensions of board
-blockX,blockY = 27,110 #board position
+blockX,blockY = 8,57 #board position
 score = 0 #score
+#32 - 56, distance is 24
+#left, top, width, height
+#top 196-210, 17-196
 #wallLeft = pygame.Rect(20,100,30,380)
 #wallRight = pygame.Rect(590,100,30,380)
 #wallTop = pygame.Rect(20,80,600,30)
-wallLeft = pygame.Rect(0,55,25,210)
-wallRight = pygame.Rect(135,55,30,210)
-wallTop = pygame.Rect(20,55,145,30)
+wallLeft = pygame.Rect(0,17,7,179)
+wallRight = pygame.Rect(153,17,30,179)
+wallTop = pygame.Rect(0,17,160,15)
 
 def write(x,y,color,msg):
     msgSurfaceObj = fontObj.render(msg, False, color)

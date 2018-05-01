@@ -81,15 +81,15 @@ def new_board():
           
 #Classes defined------------------------------ 
 class Paddle: #class for paddle vars
-    x = 90
-    y = 230
+    x = 99
+    y = 189
     size = 2 #2 is normal size, 1 is half-size
     direction = 'none'
 
 class Ball: #class for ball vars
-    x = 25
+    x = 75
     #x = 153
-    y = 180
+    y = 125
     remaining = 1
     xAcc = 1 #amount increasing by for x. adjusted for speed
     yAcc = 1
@@ -236,7 +236,7 @@ def next_state(currState, action):
                 # This is not implemented.
 
         #check wall collide----------------------------
-        if wallLeft.collidepoint(ball.x,ball.y) or wallRight.collidepoint(ball.x,ball.y):
+        if wallLeft.collidepoint(ball.x - 3,ball.y) or wallRight.collidepoint(ball.x + 5,ball.y):
             ball.xAcc = -(ball.xAcc)
         if wallTop.collidepoint(ball.x,ball.y):
             ball.yAcc = -(ball.yAcc)
@@ -247,8 +247,8 @@ def next_state(currState, action):
             for y in range(height):
                 if board[x][y] == 1:
                     # Calculate each block individually:
-                    block = pygame.Rect(6*x+blockX-1,5*y+blockY-1,6,5)
-                    if block.collidepoint(ball.x,ball.y):
+                    block = pygame.Rect(6*x+blockX,5*y+blockY,6,5)
+                    if block.collidepoint(ball.x -1,ball.y -1):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
@@ -290,10 +290,10 @@ def next_state(currState, action):
     # Provide global variable to RIGHT WALL and LEFT WALL instead of
     # numbers?
     if action == 'right':
-        if paddle.x <= 142:
+        if paddle.x <= 131:
             paddle.x += 8
     elif action == 'left':
-        if paddle.x >= 25:
+        if paddle.x >= 10:
             paddle.x -= 8
     elif action == 'none':
         pass
@@ -326,7 +326,7 @@ def game(gameState=GameState.default_state()): #The game itself
         breakout_drawing.print_board(board,colors)
         breakout_drawing.print_paddle(paddle)
         # Line to change size / where the score is
-        commons.write(40,15,grey,str(gameState.score))
+        commons.write(70,5,grey,str(gameState.score))
         temp = 0
 
 
@@ -423,7 +423,7 @@ def run_game(gameState=GameState.default_state()):
  
                     highscore.get_highscore(score)
                     replay = False
-        commons.write(200,20,grey,'Highscores')
+        commons.write(20,20,grey,'Highscores')
         highscore.print_highscore_board()
         if loop < 18:
             commons.write(80,400,grey,'-Press Enter To Play-')
