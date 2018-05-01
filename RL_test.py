@@ -122,6 +122,7 @@ def main():
 	with U.make_session(4) as sess:
 		env = make_env(args.env_name)
 		n_actions = env.action_space.n
+		print(env.observation_space.shape)
 		if args.env_name == "Breakout":
 			n_actions = 6
 		act = build_act(

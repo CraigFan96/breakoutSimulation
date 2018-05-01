@@ -98,7 +98,7 @@ class Ball: #class for ball vars
     collisions = 0
     angle =  math.atan2(xAcc,yAcc)/math.pi*180
     alive = True
-    moving = False
+    moving = True
     def adjust(self): #adjusts the x and y being added to the ball to make the hypotenuse the ball speed
         tSlope = math.sqrt(self.xAcc**2 + self.yAcc**2)
         self.xAcc = (self.speed / tSlope) * self.xAcc
@@ -221,8 +221,8 @@ def next_state(currState, action):
             ball.adjust()
         ball.x += ball.xAcc
         ball.y += ball.yAcc
-        print ball.x, paddle.x, "BALL, PADDLE"
-        print wallRight.x, ball.x
+        #print ball.x, paddle.x, "BALL, PADDLE"
+        #print wallRight.x, ball.x
         if ball.y > paddle.y-2 and ball.y < paddle.y+2:
             if check_collide_paddle(paddle, ball):
                 ball.adjusted, ball.xAcc, ball.yAcc, ball.angle = collide_paddle(paddle,ball)

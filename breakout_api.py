@@ -20,6 +20,18 @@ def play_game(state, actor):
         action = actor.act()
         state = next_state(ball, action)
 
+def next_state(state, action):
+    breakout.screen.fill(breakout.commons.black)
+    breakout.pygame.draw.rect(breakout.screen,breakout.commons.grey,breakout.commons.wallLeft)
+    breakout.pygame.draw.rect(breakout.screen,breakout.commons.grey,breakout.commons.wallRight)
+    breakout.pygame.draw.rect(breakout.screen,breakout.commons.grey,breakout.commons.wallTop)
+    breakout.pygame.draw.rect(breakout.screen,breakout.commons.red,(state.ball.x,state.ball.y,3,3))#Change ball size
+    breakout.breakout_drawing.print_board(state.board,breakout.commons.row_colors)
+    breakout.breakout_drawing.print_paddle(state.paddle)
+    breakout.pygame.display.update()
+    new_state = breakout.next_state(state, action)
+    return new_state, new_state.score - state.score, not new_state.ball.alive
+
 def game(state=None):
     if state is None:
         breakout.game()

@@ -158,7 +158,6 @@ def print_highscore_board():
     try:
         f = open(os.path.join(PATH, 'scores.txt'),'r')
     except:    
-        print 'create new highscores file'
         n = '00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n00000\n---\n'
         shutil.move('scores.txt', PATH)
         f = open(os.path.join(PATH, 'scores.txt'),'w')
