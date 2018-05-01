@@ -1,7 +1,16 @@
-from scipy import misc
-face = misc.face()
-misc.imsave('./gameImages/0.png', face)
-face = misc.imread('./gameImages/0.png')
-print face.shape, face.dtype
-for line in face:
+import cv2
+im = cv2.imread("./gameImages/0000/00000.png")
+print type(im)
+
+
+im2 = cv2.imread("./gameImages/0.png")
+print type(im2)
+x = 1
+y = 1
+for line in im2:
+	if x == 160:
+		x = 1
+		y += 1
+	print x, y
 	print line
+	x += 1
