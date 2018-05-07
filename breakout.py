@@ -292,14 +292,12 @@ def next_state(currState, action):
     # Provide global variable to RIGHT WALL and LEFT WALL instead of
     # numbers?
     if action == 'right':
-        if paddle.x + paddle.width < wallRight.left:
-            print("yo", wallRight.left, paddle.x, paddle.x+paddle.width)
+        if paddle.x + paddle.width + 8 <= wallRight.left:
             paddle.x += 8
         else:
-            print("no", wallRight.left, paddle.x, paddle.x+paddle.width)
             paddle.x = wallRight.left - paddle.width
     elif action == 'left':
-        if paddle.x > wallLeft.right:
+        if paddle.x - 8 >= wallLeft.right:
             paddle.x -= 8
         else:
             paddle.x = wallLeft.right
