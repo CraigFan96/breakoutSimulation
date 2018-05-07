@@ -248,7 +248,7 @@ def next_state(currState, action):
                 if board[x][y] == 1:
                     # Calculate each block individually:
                     block = pygame.Rect(8*x+blockX,6*y+blockY,9,7)
-                    if block.collidepoint(ball.x -10,ball.y - 10):
+                    if block.collidepoint(ball.x - 2,ball.y - 2):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
