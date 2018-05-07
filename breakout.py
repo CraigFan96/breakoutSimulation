@@ -186,7 +186,7 @@ class GameState:
 
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
-    return ball.x > paddle.x and ball.x < paddle.x + 30
+    return ball.x > paddle.x-10 and ball.x < paddle.x + 30
 
 
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
@@ -247,7 +247,7 @@ def next_state(currState, action):
             for y in range(height):
                 if board[x][y] == 1:
                     # Calculate each block individually:
-                    block = pygame.Rect(6*x+blockX,5*y+blockY,6,5)
+                    block = pygame.Rect(8*x+blockX,6*y+blockY,9,7)
                     if block.collidepoint(ball.x -10,ball.y - 10):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what

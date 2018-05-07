@@ -10,6 +10,7 @@ Also, I've omitted setting up the act function, but you can find this in the XAI
 '''
 
 import numpy as np
+import time
 import pandas as pd
 import breakout_api as bk
 from RL_test import *
@@ -48,8 +49,9 @@ def play(img, act):
         j += 1
         action, q_values = act(np.array(img)[None])
         print(action)
+        time.sleep(.1)
         if action >= 3:
-            action -= 2
+            action -= 3
         if action == 1:
             obs, rew, done = bk.next_state(state, "left")
         elif action == 2:
