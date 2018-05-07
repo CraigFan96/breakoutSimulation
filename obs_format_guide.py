@@ -54,7 +54,7 @@ def play(img, act):
             obs, rew, done = bk.next_state(state, "left")
         elif action == 2:
             obs, rew, done = bk.next_state(state, "right")
-        elif action == 0:
+        else:
             obs, rew, done = bk.next_state(state, "none")
         print(action, rew)
         if done:
