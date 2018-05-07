@@ -84,6 +84,8 @@ class Paddle: #class for paddle vars
     x = 99
     y = 189
     size = 2 #2 is normal size, 1 is half-size
+    width = 16
+    height = 4
     direction = 'none'
 
 class Ball: #class for ball vars
@@ -186,7 +188,7 @@ class GameState:
 
 #Functions defined----------------------------
 def check_collide_paddle(paddle, ball):
-    return ball.x > paddle.x-10 and ball.x < paddle.x + 30
+    return ball.x > paddle.x - 5 and ball.x < paddle.x + paddle.width
 
 
 def collide_paddle(paddle,ball): #recalculates the trajectory for the ball after collision with the paddle
@@ -248,7 +250,7 @@ def next_state(currState, action):
                 if board[x][y] == 1:
                     # Calculate each block individually:
                     block = pygame.Rect(8*x+blockX,6*y+blockY,9,7)
-                    if block.collidepoint(ball.x - 2,ball.y - 2):
+                    if block.collidepoint(ball.x -10,ball.y - 10):
                         board[x][y] = 0
 ##                            if y*12+blockY+12 < ball.y: FIX THIS ITS THE BLOCK BUG <-- also what
 ##                                ball.y = -(ball.y)
@@ -277,7 +279,7 @@ def next_state(currState, action):
             if collision:
                 break
         # Ball passes paddle
-        if ball.y > 460:
+        if ball.y > paddle.y+10:
             ball.alive = False
       
     #check if ball was lost
@@ -290,11 +292,17 @@ def next_state(currState, action):
     # Provide global variable to RIGHT WALL and LEFT WALL instead of
     # numbers?
     if action == 'right':
-        if paddle.x <= 131:
+        if paddle.x + paddle.width < wallRight.left:
+            print("yo", wallRight.left, paddle.x, paddle.x+paddle.width)
             paddle.x += 8
+        else:
+            print("no", wallRight.left, paddle.x, paddle.x+paddle.width)
+            paddle.x = wallRight.left - paddle.width
     elif action == 'left':
-        if paddle.x >= 10:
+        if paddle.x > wallLeft.right:
             paddle.x -= 8
+        else:
+            paddle.x = wallLeft.right
     elif action == 'none':
         pass
 
